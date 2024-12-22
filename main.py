@@ -80,22 +80,66 @@ class MangaDown:
             path = os.path.join(my_cwd + '\\' + self.manga_name + '\\' + vol + '\\' + ch)
             driver.get(url + i)
             btn = driver.find_elements(By.CLASS_NAME, 'btn-lg')
-            time.sleep(2)
+            time.sleep(1.3)
 
             try:
                 btn[0].click()
             except:
-                print()
+                pass
 
             no = driver.find_element(By.CLASS_NAME, 'pages-count')
 
             for y in range(int(no.text)):
-                img = driver.find_element(By.CLASS_NAME, 'manga-img')
+                errCount = 0
+
+                while True:
+                    if errCount > 100:
+                        print('Error while downloading file ' + i)
+                        break
+                    try:
+                        img = driver.find_element(By.CLASS_NAME, 'manga-img')
+                    except:
+                        errCount += 1
+                        print('Ошибка "1" ' + str(errCount))
+                        time.sleep(0.2)
+                        continue
+                    break
+
                 src = img.get_attribute('src')
                 fileType = src.split(".")[-1]
-                urllib.request.urlretrieve(src, os.path.join(path, str(y) + "." + fileType[0:3]))
-                time.sleep(0.7)
-                btn = driver.find_element(By.CLASS_NAME, 'nextButton')
+
+                errCount = 0
+
+                while True:
+                    if errCount > 100:
+                        print('Error while downloading file ' + i)
+                        break
+                    try:
+                        urllib.request.urlretrieve(src, os.path.join(path, str(y) + "." + fileType[0:3]))
+                    except:
+                        errCount += 1
+                        print('Ошибка "2" ' + str(errCount))
+                        time.sleep(0.2)
+                        continue
+                    break
+
+                time.sleep(0.4)
+
+                errCount = 0
+
+                while True:
+                    if errCount > 100:
+                        print('Error while downloading file ' + i)
+                        break
+                    try:
+                        btn = driver.find_element(By.CLASS_NAME, 'nextButton')
+                    except:
+                        errCount += 1
+                        print('Ошибка "3" ' + str(errCount))
+                        time.sleep(0.2)
+                        continue
+                    break
+
                 btn.click()
 
 if __name__ == "__main__":
