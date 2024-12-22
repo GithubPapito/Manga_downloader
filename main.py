@@ -7,6 +7,7 @@ import os
 import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+import img2pdf
 
 class MangaDown:
     def __init__(self, url):
@@ -19,6 +20,7 @@ class MangaDown:
         self.get_chapter_links()
         self.create_path()
         self.download()
+        self.conwert_to_pdf()
 
     def check_status(self, status_code):
         if status_code != 200:
@@ -123,8 +125,6 @@ class MangaDown:
                         continue
                     break
 
-                time.sleep(0.4)
-
                 errCount = 0
 
                 while True:
@@ -133,6 +133,7 @@ class MangaDown:
                         break
                     try:
                         btn = driver.find_element(By.CLASS_NAME, 'nextButton')
+                        btn.click()
                     except:
                         errCount += 1
                         print('Ошибка "3" ' + str(errCount))
@@ -140,7 +141,33 @@ class MangaDown:
                         continue
                     break
 
-                btn.click()
+                time.sleep(0.7)
+
+    def conwert_to_pdf(self):
+        my_cwd = os.getcwd()
+        path = os.path.join(my_cwd + '\\' + self.manga_name)
+        dir = os.listdir(path)
+
+        for n in dir:
+            path = os.path.join(my_cwd + '\\' + self.manga_name + '\\' + n)
+            vol = os.listdir(path)
+            image_files = []
+            ch = []
+
+            for y in vol:
+                ch.append(int(y))
+            ch.sort()
+
+            for v in ch:
+                img = os.listdir(path + '\\' + str(v))
+                img = sorted(img, key=lambda p: img[:p.find('.')])
+                for i in img:
+                    image_files.append(path + '\\' + str(v) + '\\' + i)
+
+            pdf_data = img2pdf.convert(image_files)
+            with open(my_cwd + '\\' + self.manga_name + '\\' + n + ".pdf", "wb") as file:
+                file.write(pdf_data)
+
 
 if __name__ == "__main__":
     print("Адрес манги")
