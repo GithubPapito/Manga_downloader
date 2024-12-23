@@ -12,6 +12,7 @@ from tqdm import tqdm
 import httplib2
 import random
 import logging
+import json
 
 class MangaDown:
     def __init__(self, url):
@@ -26,6 +27,17 @@ class MangaDown:
         self.create_path()
         self.download()
         self.conwert_to_pdf()
+
+    def authorization(self, driver):
+        file = os.listdir(self.my_cwd)
+        for i in file:
+            if i == 'cookies.json':
+                with open(i, 'r') as file:
+                    cookies = json.load(file)
+                    for cookie in cookies:
+                        driver.add_cookie(cookie)
+                driver.refresh()
+                return driver
 
     def check_status(self, status_code):
         if status_code != 200:
@@ -98,6 +110,11 @@ class MangaDown:
                     first = False
                 except:
                     first = False
+
+                try:
+                    self.authorization(driver)
+                except:
+                    pass
 
             time.sleep(0.5)
 
