@@ -204,7 +204,10 @@ class MangaDown:
             ch = []
 
             for y in vol:
-                ch.append(int(y))
+                try:
+                    ch.append(int(y))
+                except:
+                    ch.append(float(y))
             ch.sort()
 
             for v in ch:
