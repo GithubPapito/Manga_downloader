@@ -25,8 +25,32 @@ class MangaDown:
         self.get_manga_data()
         self.get_chapter_links()
         self.create_path()
-        self.download()
+        # self.download()
         self.conwert_to_pdf()
+
+    def qest(self):
+        file = os.listdir(self.my_cwd)
+        for i in file:
+            if i == 'save.json':
+                save = self.load_save()
+                if len(save) != 0:
+                    print("Продолжить скачивание с " + save[0] + " ? (y/n)")
+                    otv = input()
+                    if otv == "y":
+                        self.links = save
+
+
+    def load_save(self):
+        with open('save.json', 'r') as file:
+            save = json.load(file)
+        return save
+
+    def create_save(self, rev):
+        save = self.links.copy()
+        for i in range(rev):
+            save.pop(0)
+        with open('save.json', 'w') as file:
+            json.dump(save, file)
 
     def authorization(self, driver):
         file = os.listdir(self.my_cwd)
@@ -89,17 +113,20 @@ class MangaDown:
                 os.mkdir(path)
 
     def download(self):
+        self.qest()
+
         url = self.url[:self.url.rfind('/')]
         logging.getLogger('selenium').setLevel(logging.WARNING)
         driver = webdriver.Edge()
         first = True
+        rev = 0
 
         for i in self.links:
+            rev += 1
             a = i.split('/')
             vol = a[2]
             ch = a[3]
             path = os.path.join(self.my_cwd + '\\' + self.manga_name + '\\' + vol + '\\' + ch)
-            driver.get(url + i)
 
             if first:
                 try:
@@ -112,9 +139,12 @@ class MangaDown:
                     first = False
 
                 try:
+                    driver.get(url)
                     self.authorization(driver)
                 except:
                     pass
+
+            driver.get(url + i)
 
             time.sleep(0.5)
 
@@ -155,6 +185,8 @@ class MangaDown:
                         break
 
                 time.sleep(random.uniform(0.2, 0.4))
+
+            self.create_save(rev)
 
         driver.close()
         print('Скачивание завершен')
