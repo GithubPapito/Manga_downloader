@@ -25,7 +25,7 @@ class MangaDown:
         self.get_manga_data()
         self.get_chapter_links()
         self.create_path()
-        # self.download()
+        self.download()
         self.conwert_to_pdf()
 
     def qest(self):
