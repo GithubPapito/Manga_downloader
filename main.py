@@ -7,11 +7,11 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options
 import img2pdf
 from tqdm import tqdm
 import httplib2
 import random
-import logging
 import json
 
 class MangaDown:
@@ -116,8 +116,10 @@ class MangaDown:
         self.qest()
 
         url = self.url[:self.url.rfind('/')]
-        logging.getLogger('selenium').setLevel(logging.WARNING)
-        driver = webdriver.Edge()
+
+        chrome_options = Options()
+        chrome_options.add_argument("--log-level=3")
+        driver = webdriver.Chrome(options=chrome_options)
         first = True
         rev = 0
 
