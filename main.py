@@ -148,7 +148,7 @@ class MangaDown:
 
             driver.get(url + i)
 
-            time.sleep(0.5)
+            # time.sleep(0.5)
 
             no = WebDriverWait(driver, 5).until(
                 EC.visibility_of_element_located((By.CLASS_NAME, 'pages-count'))
@@ -175,6 +175,9 @@ class MangaDown:
                             driver.close()
                             print('not good')
                             exit(0)
+                        if errCount % 10 == 0 and errCount != 0:
+                            driver.refresh()
+                            time.sleep(0.2)
                         try:
                             element = WebDriverWait(driver, 5).until(
                                 EC.visibility_of_element_located((By.CLASS_NAME, 'nextButton'))
@@ -186,7 +189,7 @@ class MangaDown:
                             continue
                         break
 
-                time.sleep(random.uniform(0.2, 0.4))
+                time.sleep(random.uniform(0.1, 0.3))
 
             self.create_save(rev)
 
@@ -199,7 +202,7 @@ class MangaDown:
         path = os.path.join(self.my_cwd + '\\' + self.manga_name)
         dir = os.listdir(path)
 
-        for n in dir:
+        for n in tqdm((dir), desc='Прогресс создания PDF: '):
             path = os.path.join(self.my_cwd + '\\' + self.manga_name + '\\' + n)
             vol = os.listdir(path)
             image_files = []
