@@ -39,7 +39,6 @@ class MangaDown:
                     if otv == "y":
                         self.links = save
 
-
     def load_save(self):
         with open('save.json', 'r') as file:
             save = json.load(file)
@@ -148,9 +147,7 @@ class MangaDown:
 
             driver.get(url + i)
 
-            # time.sleep(0.5)
-
-            no = WebDriverWait(driver, 5).until(
+            no = WebDriverWait(driver, 15).until(
                 EC.visibility_of_element_located((By.CLASS_NAME, 'pages-count'))
             )
 
@@ -194,7 +191,7 @@ class MangaDown:
             self.create_save(rev)
 
         driver.close()
-        print('Скачивание завершен')
+        print('Скачивание завершено')
 
     def conwert_to_pdf(self):
         print('Создание PDF')
