@@ -14,6 +14,78 @@ import httplib2
 import random
 import json
 
+def domain_definition(url):
+    m = re.search('//(.+?)/', url)
+    if m:
+        dom = m.group(1)
+    print(dom)
+
+def qest(my_cwd, links):
+    file = os.listdir(my_cwd)
+    for i in file:
+        if i == 'save.json':
+            save = load_save()
+            if len(save) != 0:
+                print("Продолжить скачивание с " + save[0] + " ? (y/n)")
+                otv = input()
+                if otv == "y":
+                    return save
+    return links
+
+def load_save():
+    with open('save.json', 'r') as file:
+        save = json.load(file)
+    return save
+
+def create_save(rev, links):
+    save = links.copy()
+    for i in range(rev):
+        save.pop(0)
+    with open('save.json', 'w') as file:
+        json.dump(save, file)
+
+def authorization(driver, my_cwd):
+    file = os.listdir(my_cwd)
+    for i in file:
+        if i == 'cookies.json':
+            with open(i, 'r') as file:
+                cookies = json.load(file)
+                for cookie in cookies:
+                    driver.add_cookie(cookie)
+            driver.refresh()
+            return driver
+
+def conwert_to_pdf(my_cwd, manga_name):
+    print('Создание PDF')
+
+    path = os.path.join(my_cwd + '\\' + manga_name)
+    dir = os.listdir(path)
+
+    for n in tqdm((dir), desc='Прогресс создания PDF: '):
+        path = os.path.join(my_cwd + '\\' + manga_name + '\\' + n)
+        vol = os.listdir(path)
+        image_files = []
+        ch = []
+
+        for y in vol:
+            try:
+                ch.append(int(y))
+            except:
+                ch.append(float(y))
+        ch.sort()
+
+        for v in ch:
+            img = os.listdir(path + '\\' + str(v))
+            img = sorted(img, key=lambda p: img[:p.find('.')])
+            for i in img:
+                image_files.append(path + '\\' + str(v) + '\\' + i)
+
+        pdf_data = img2pdf.convert(image_files)
+        with open(my_cwd + '\\' + manga_name + '\\' + n + ".pdf", "wb") as file:
+            file.write(pdf_data)
+
+    print('Создание PDF завершено')
+
 class MangaDown:
     def __init__(self, url):
         self.url = url
@@ -26,41 +98,7 @@ class MangaDown:
         self.get_chapter_links()
         self.create_path()
         self.download()
-        self.conwert_to_pdf()
-
-    def qest(self):
-        file = os.listdir(self.my_cwd)
-        for i in file:
-            if i == 'save.json':
-                save = self.load_save()
-                if len(save) != 0:
-                    print("Продолжить скачивание с " + save[0] + " ? (y/n)")
-                    otv = input()
-                    if otv == "y":
-                        self.links = save
-
-    def load_save(self):
-        with open('save.json', 'r') as file:
-            save = json.load(file)
-        return save
-
-    def create_save(self, rev):
-        save = self.links.copy()
-        for i in range(rev):
-            save.pop(0)
-        with open('save.json', 'w') as file:
-            json.dump(save, file)
-
-    def authorization(self, driver):
-        file = os.listdir(self.my_cwd)
-        for i in file:
-            if i == 'cookies.json':
-                with open(i, 'r') as file:
-                    cookies = json.load(file)
-                    for cookie in cookies:
-                        driver.add_cookie(cookie)
-                driver.refresh()
-                return driver
+        conwert_to_pdf(self.my_cwd, self.manga_name)
 
     def check_status(self, status_code):
         if status_code != 200:
@@ -112,7 +150,7 @@ class MangaDown:
                 os.mkdir(path)
 
     def download(self):
-        self.qest()
+        self.links = qest(self.my_cwd, self.links)
 
         url = self.url[:self.url.rfind('/')]
 
@@ -141,7 +179,7 @@ class MangaDown:
 
                 try:
                     driver.get(url)
-                    self.authorization(driver)
+                    driver = authorization(driver, self.my_cwd)
                 except:
                     pass
 
@@ -188,41 +226,10 @@ class MangaDown:
 
                 time.sleep(random.uniform(0.1, 0.3))
 
-            self.create_save(rev)
+            create_save(rev, self.links)
 
         driver.close()
         print('Скачивание завершено')
-
-    def conwert_to_pdf(self):
-        print('Создание PDF')
-
-        path = os.path.join(self.my_cwd + '\\' + self.manga_name)
-        dir = os.listdir(path)
-
-        for n in tqdm((dir), desc='Прогресс создания PDF: '):
-            path = os.path.join(self.my_cwd + '\\' + self.manga_name + '\\' + n)
-            vol = os.listdir(path)
-            image_files = []
-            ch = []
-
-            for y in vol:
-                try:
-                    ch.append(int(y))
-                except:
-                    ch.append(float(y))
-            ch.sort()
-
-            for v in ch:
-                img = os.listdir(path + '\\' + str(v))
-                img = sorted(img, key=lambda p: img[:p.find('.')])
-                for i in img:
-                    image_files.append(path + '\\' + str(v) + '\\' + i)
-
-            pdf_data = img2pdf.convert(image_files)
-            with open(self.my_cwd + '\\' + self.manga_name + '\\' + n + ".pdf", "wb") as file:
-                file.write(pdf_data)
-
-        print('Создание PDF завершено')
 
 if __name__ == "__main__":
     print("Введите адрес манги")
