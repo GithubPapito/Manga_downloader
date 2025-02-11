@@ -54,6 +54,7 @@ def authorization(driver, my_cwd):
                     driver.add_cookie(cookie)
             driver.refresh()
             return driver
+    return driver
 
 def conwert_to_pdf(my_cwd, manga_name):
     print('Создание PDF')
