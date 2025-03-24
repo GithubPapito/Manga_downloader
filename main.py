@@ -105,7 +105,7 @@ class MangaDown_MLib:
                 data = response.json()
                 pages = data.get("data", {}).get("pages", [])
                 return [
-                    f"https://img33.imgslib.link{page['url']}"
+                    f"https://img2.imglib.info{page['url']}"
                     if page["url"].startswith("//manga/") else page["url"]
                     for page in pages
                 ]
