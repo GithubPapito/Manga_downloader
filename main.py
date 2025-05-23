@@ -15,7 +15,7 @@ import json
 
 def domain_definition(url):
     m_lib = ["mangalib.me"]
-    groupl = ["web.usagi.one", "1.seimanga.me", "2.mintmanga.one", "selfmanga.live", "rumix.me", "web.usagi.one"]
+    groupl = ["web.usagi.one", "1.seimanga.me", "2.mintmanga.one", "selfmanga.live", "rumix.me", "web.usagi.one", "zz.readmanga.io"]
     dom = re.search('//(.+?)/', url).group(1)
     if dom in m_lib:
         MangaDown_MLib(url)
