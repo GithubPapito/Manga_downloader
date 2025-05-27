@@ -1,3 +1,4 @@
+import random
 import re
 from bs4 import BeautifulSoup
 import requests
@@ -18,7 +19,7 @@ def domain_definition(url):
     groupl = ["web.usagi.one", "1.seimanga.me", "2.mintmanga.one", "selfmanga.live", "rumix.me", "web.usagi.one", "zz.readmanga.io"]
     dom = re.search('//(.+?)/', url).group(1)
     if dom in m_lib:
-        MangaDown_MLib(url)
+        MangaDown_MLib(url, dom)
     elif dom in groupl:
         MangaDown_group(url)
     else:
@@ -77,13 +78,20 @@ def convert_to_pdf(my_cwd, manga_name):
     print('Создание PDF завершено')
 
 class MangaDown_MLib:
-    def __init__(self, url):
+    def __init__(self, url, dom):
         self.url = url
+        self.token = None
         self.manga_name = None
         self.slug_url = None
         self.my_cwd = os.getcwd()
         self.volumes = {}
+        self.base_url = "https://api.cdnlibs.org/api/manga"
+        self.headers = {"Authorization": f"Bearer {self.token}",
+                   "Origin": f"{dom}",
+                   "Referer": f"{dom}/",
+                   "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0", }
 
+        # self.get_tok()
         self.get_slug()
         self.get_manga_data()
         self.get_chapters()
@@ -91,31 +99,33 @@ class MangaDown_MLib:
         self.download()
         convert_to_pdf(self.my_cwd, self.manga_name)
 
+    def get_tok(self):
+        print("Введите токен")
+        self.token = input()
+
     def get_pages(self, vol, ch):
-        base_url = "https://api.lib.social/api/manga"
-        endpoint = f"{base_url}/{self.slug_url}/chapter"
+        endpoint = f"{self.base_url}/{self.slug_url}/chapter"
         params = {
             "number": ch,
             "volume": vol
         }
 
-        try:
-            response = requests.get(endpoint, params=params, timeout=10)
-            if response.status_code == 200:
-                data = response.json()
-                pages = data.get("data", {}).get("pages", [])
-                return [
-                    f"https://img2.imglib.info{page['url']}"
-                    if page["url"].startswith("//manga/") else page["url"]
-                    for page in pages
-                ]
-            return []
-        except Exception as e:
-            print(f"Ошибка при получении страниц: {e}")
+        response = requests.get(endpoint, params=params, timeout=10, headers=self.headers)
+        if response.status_code == 200:
+            data = response.json()
+            pages = data.get("data", {}).get("pages", [])
+            return [
+                f"https://img33.imgslib.link{page['url']}"
+                if page["url"].startswith("//manga/") else page["url"]
+                for page in pages
+            ]
+        else:
+            print(f"Ошибка при получении страниц: {response}")
             time.sleep(10)
             exit(0)
 
     def download(self):
+        h = httplib2.Http('.cache')
         for vol in self.volumes:
             for ch in self.volumes[vol]:
                 page_urls = self.get_pages(vol, ch)
@@ -124,10 +134,10 @@ class MangaDown_MLib:
                 path = os.path.join(self.my_cwd, self.manga_name, f'vol{vol}', ch)
                 for i, src in enumerate(tqdm(page_urls, desc=f'Скачивание том {vol} глава {ch}'), start=1):
                     fileType = src.split(".")[-1][:3]
-                    h = httplib2.Http('.cache')
-                    response, content = h.request(src)
+                    response, content = h.request(src, headers=self.headers)
                     with open(os.path.join(path, f"{i}.{fileType}"), 'wb') as f:
                         f.write(content)
+                    time.sleep(random.uniform(0.15, 0.5))
 
     def create_path(self):
         self.manga_name = re.sub('[\\\/\:\*\?\""\<\>\|]', ' ', self.manga_name)
@@ -138,14 +148,14 @@ class MangaDown_MLib:
                 os.makedirs(os.path.join(path, f'vol{vol}', ch), exist_ok=True)
 
     def get_chapters(self):
-        url = f"https://api.lib.social/api/manga/{self.slug_url}/chapters"
-        try:
-            response = requests.get(url, timeout=10)
-            if response.status_code == 200:
-                data = response.json()
-                m_data = data.get("data", [])
-        except Exception as e:
-            print(f"Ошибка при получении глав: {e}")
+        url = f"{self.base_url}/{self.slug_url}/chapters"
+
+        response = requests.get(url, timeout=10, headers=self.headers)
+        if response.status_code == 200:
+            data = response.json()
+            m_data = data.get("data", [])
+        else:
+            print(f"Ошибка при получении глав {response}")
             time.sleep(10)
             exit(0)
         for chapter in m_data:
@@ -164,7 +174,7 @@ class MangaDown_MLib:
 
     def get_manga_data(self):
         try:
-            response = requests.get(f"https://api.lib.social/api/manga/{self.slug_url}", timeout=10)
+            response = requests.get(f"{self.base_url}/{self.slug_url}", timeout=10, headers=self.headers)
             if response.status_code == 200:
                 data = response.json()
                 self.manga_name = data.get("data", {}).get("eng_name", [])
