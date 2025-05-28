@@ -16,10 +16,14 @@ import json
 
 def domain_definition(url):
     m_lib = ["mangalib.me"]
+    h_lib = ["hentailib.me"]
+    img_url = ["img33.imgslib.link", "img2h.imgslib.link"]
     groupl = ["web.usagi.one", "1.seimanga.me", "2.mintmanga.one", "selfmanga.live", "rumix.me", "web.usagi.one", "zz.readmanga.io"]
     dom = re.search('//(.+?)/', url).group(1)
     if dom in m_lib:
-        MangaDown_MLib(url, dom)
+        MangaDown_MLib(url, dom, img_url[0])
+    elif dom in h_lib:
+        MangaDown_MLib(url, dom, img_url[1])
     elif dom in groupl:
         MangaDown_group(url)
     else:
@@ -78,7 +82,7 @@ def convert_to_pdf(my_cwd, manga_name):
     print('Создание PDF завершено')
 
 class MangaDown_MLib:
-    def __init__(self, url, dom):
+    def __init__(self, url, dom, img_url):
         self.url = url
         self.token = None
         self.manga_name = None
@@ -86,12 +90,14 @@ class MangaDown_MLib:
         self.my_cwd = os.getcwd()
         self.volumes = {}
         self.base_url = "https://api.cdnlibs.org/api/manga"
+        self.img_url = img_url
+
+        self.get_tok()
         self.headers = {"Authorization": f"Bearer {self.token}",
                    "Origin": f"{dom}",
                    "Referer": f"{dom}/",
                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0", }
 
-        # self.get_tok()
         self.get_slug()
         self.get_manga_data()
         self.get_chapters()
@@ -100,7 +106,7 @@ class MangaDown_MLib:
         convert_to_pdf(self.my_cwd, self.manga_name)
 
     def get_tok(self):
-        print("Введите токен")
+        print("Введите токен (если манга доступна для общего просмотра, можно оставить пустым (просто Enter))")
         self.token = input()
 
     def get_pages(self, vol, ch):
@@ -115,14 +121,14 @@ class MangaDown_MLib:
             data = response.json()
             pages = data.get("data", {}).get("pages", [])
             return [
-                f"https://img33.imgslib.link{page['url']}"
+                f"https://{self.img_url}{page['url']}"
                 if page["url"].startswith("//manga/") else page["url"]
                 for page in pages
             ]
         else:
             print(f"Ошибка при получении страниц: {response}")
-            time.sleep(10)
-            exit(0)
+            time.sleep(3)
+            return None
 
     def download(self):
         h = httplib2.Http('.cache')
@@ -131,6 +137,7 @@ class MangaDown_MLib:
                 page_urls = self.get_pages(vol, ch)
                 if not page_urls:
                     print(f"Страницы не найдены для тома {vol}, главы {ch}!")
+                    continue
                 path = os.path.join(self.my_cwd, self.manga_name, f'vol{vol}', ch)
                 for i, src in enumerate(tqdm(page_urls, desc=f'Скачивание том {vol} глава {ch}'), start=1):
                     fileType = src.split(".")[-1][:3]
@@ -173,13 +180,12 @@ class MangaDown_MLib:
             raise ValueError(f"Не удалось извлечь slug из URL: {self.url}")
 
     def get_manga_data(self):
-        try:
-            response = requests.get(f"{self.base_url}/{self.slug_url}", timeout=10, headers=self.headers)
-            if response.status_code == 200:
-                data = response.json()
-                self.manga_name = data.get("data", {}).get("eng_name", [])
-        except Exception as e:
-            print(f"Ошибка при получении информации о манге: {e}")
+        response = requests.get(f"{self.base_url}/{self.slug_url}", timeout=10, headers=self.headers)
+        if response.status_code == 200:
+            data = response.json()
+            self.manga_name = data.get("data", {}).get("name", [])
+        else:
+            print(f"Ошибка при получении информации о манге: {response}")
             time.sleep(10)
             exit(0)
 
