@@ -13,7 +13,7 @@ from utils import qest, create_save, authorization, convert_to_pdf, check_status
 
 
 class MangaDown_group:
-    def __init__(self, url):
+    def __init__(self, url, sel):
         self.url = url
         self.headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36"}
@@ -25,7 +25,7 @@ class MangaDown_group:
         self.get_chapter_links()
         self.create_path()
         self.download()
-        convert_to_pdf(self.my_cwd, self.manga_name)
+        convert_to_pdf(self.my_cwd, self.manga_name, sel)
 
     def get_manga_data(self):
         """Получает данные о манге."""

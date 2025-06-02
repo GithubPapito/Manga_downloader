@@ -9,7 +9,7 @@ from utils import convert_to_pdf, sanitize_filename
 
 
 class MangaDown_MLib:
-    def __init__(self, url, dom, img_url):
+    def __init__(self, url, dom, img_url, sel):
         self.url = url
         self.token = None
         self.manga_name = None
@@ -32,7 +32,7 @@ class MangaDown_MLib:
         self.get_chapters()
         self.create_path()
         self.download()
-        convert_to_pdf(self.my_cwd, self.manga_name)
+        convert_to_pdf(self.my_cwd, self.manga_name, sel)
 
     def get_tok(self):
         """Запрашивает токен авторизации."""

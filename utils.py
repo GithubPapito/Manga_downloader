@@ -3,6 +3,14 @@ import json
 import img2pdf
 from tqdm import tqdm
 import re
+import zipfile
+
+def selection():
+    y = input("Создать PDF или CBZ (по умолчанию PDF)")
+    if y in ["CBZ", "cbz"]:
+        return "cbz"
+    else:
+        return "pdf"
 
 def qest(my_cwd, links):
     """Проверяет наличие сохраненного прогресса и предлагает продолжить с него."""
@@ -38,9 +46,9 @@ def authorization(driver, my_cwd):
         driver.refresh()
     return driver
 
-def convert_to_pdf(my_cwd, manga_name):
+def convert_to_pdf(my_cwd, manga_name, format):
     """Конвертирует изображения в PDF."""
-    print('Создание PDF')
+    print(f'Создание {format}')
     path = os.path.join(my_cwd, manga_name)
     for n in tqdm(os.listdir(path), desc='Прогресс создания PDF'):
         vol_path = os.path.join(path, n)
@@ -49,10 +57,15 @@ def convert_to_pdf(my_cwd, manga_name):
             img_path = os.path.join(vol_path, v)
             files = os.listdir(img_path)
             image_files.extend([os.path.join(img_path, img) for img in sorted(files, key=lambda p: float(re.search(r'(\d+)', p).group()))])
-        pdf_data = img2pdf.convert(image_files)
-        with open(os.path.join(path, f"{n}.pdf"), "wb") as file:
-            file.write(pdf_data)
-    print('Создание PDF завершено')
+        if format == "cbz":
+            with zipfile.ZipFile(f"{path}\\{n}.cbz", 'w', zipfile.ZIP_DEFLATED) as cbz:
+                for image_path in image_files:
+                    cbz.write(image_path, image_path)
+        else:
+            pdf_data = img2pdf.convert(image_files)
+            with open(os.path.join(path, f"{n}.pdf"), "wb") as file:
+                file.write(pdf_data)
+    print(f'Создание {format} завершено')
 
 def check_status(status_code):
     """Проверяет статус ответа сервера."""
