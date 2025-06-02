@@ -76,53 +76,49 @@ class MangaDown_group:
 
             try:
                 driver.get(full_url)
-                pages_element = WebDriverWait(driver, 15).until(
-                    EC.visibility_of_element_located((By.CLASS_NAME, 'pages-count'))
+                pages_element = WebDriverWait(driver, 15).until(EC.visibility_of_element_located((By.CLASS_NAME, 'pages-count')))
                 pages = int(pages_element.text)
 
                 for y in tqdm(range(1, pages + 1), desc=link):
-                    img = WebDriverWait(driver, 5).until(
-                        EC.visibility_of_element_located((By.CLASS_NAME, 'manga-img')))
-                src = img.get_attribute('src')
-                fileType = src.split(".")[-1][:3]
+                    img = WebDriverWait(driver, 5).until(EC.visibility_of_element_located((By.CLASS_NAME, 'manga-img')))
+                    src = img.get_attribute('src')
+                    fileType = src.split(".")[-1][:3]
 
-                h = httplib2.Http('.cache')
-                response, content = h.request(src)
-                if response.status != 200:
-                    print(f"Ошибка скачивания {src}: {response.status}")
+                    h = httplib2.Http('.cache')
+                    response, content = h.request(src)
+                    if response.status != 200:
+                        print(f"Ошибка скачивания {src}: {response.status}")
+                        continue
+
+                    with open(os.path.join(path, f"{y}.{fileType}"), 'wb') as f:
+                        f.write(content)
+                    self._click_next_button(driver)
+
+                create_save(rev + 1, self.links)
+            except Exception as e:
+                print(f"Ошибка при скачивании главы {link}: {e}")
                 continue
 
-                with open(os.path.join(path, f"{y}.{fileType}"), 'wb') as f:
-                    f.write(content)
-                self._click_next_button(driver)
 
-            create_save(rev + 1, self.links)
-
-        except Exception as e:
-        print(f"Ошибка при скачивании главы {link}: {e}")
-        continue
+        driver.close()
+        print('Скачивание завершено')
 
 
-driver.close()
-print('Скачивание завершено')
-
-
-def _click_next_button(self, driver):
-    """Пытается нажать кнопку 'Далее' с обработкой ошибок."""
-    errCount = 0
-    while errCount <= 50:
-        try:
-            next_btn = WebDriverWait(driver, 5).until(
-                EC.element_to_be_clickable((By.CLASS_NAME, 'nextButton')))
-            next_btn.click()
-            return
-        except:
-            errCount += 1
-            if errCount % 10 == 0:
-                driver.refresh()
-                time.sleep(0.5)
-            else:
-                time.sleep(0.2)
-    driver.close()
-    print('Ошибка: не удалось нажать кнопку "Далее".')
-    exit(0)
+    def _click_next_button(self, driver):
+        """Пытается нажать кнопку 'Далее' с обработкой ошибок."""
+        errCount = 0
+        while errCount <= 50:
+            try:
+                next_btn = WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.CLASS_NAME, 'nextButton')))
+                next_btn.click()
+                return
+            except:
+                errCount += 1
+                if errCount % 10 == 0:
+                    driver.refresh()
+                    time.sleep(0.5)
+                else:
+                    time.sleep(0.2)
+        driver.close()
+        print('Ошибка: не удалось нажать кнопку "Далее".')
+        exit(0)
