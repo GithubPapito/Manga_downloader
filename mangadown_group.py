@@ -83,6 +83,8 @@ class MangaDown_group:
                     img = WebDriverWait(driver, 5).until(EC.visibility_of_element_located((By.CLASS_NAME, 'manga-img')))
                     src = img.get_attribute('src')
                     fileType = src.split(".")[-1][:3]
+                    if fileType not in ("jpg", "png", "svg"):
+                        fileType = src.split(".")[-1][:4]
 
                     h = httplib2.Http('.cache')
                     response, content = h.request(src)

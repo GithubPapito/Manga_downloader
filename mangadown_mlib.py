@@ -75,8 +75,15 @@ class MangaDown_MLib:
                 path = os.path.join(self.my_cwd, self.manga_name, f'vol{vol}', ch)
                 for i, src in enumerate(tqdm(page_urls, desc=f'Скачивание том {vol} глава {ch}'), start=1):
                     fileType = src.split(".")[-1][:3]
+                    if fileType not in ("jpg", "png", "svg"):
+                        fileType = src.split(".")[-1][:4]
                     try:
                         response, content = h.request(src, headers=self.headers)
+                        while response.status == 429:
+                            print(f"Ошибка скачивания {src}: {response.status}")
+                            time.sleep(0.25)
+                            print("Повторное скачивание")
+                            response, content = h.request(src, headers=self.headers)
                         if response.status != 200:
                             print(f"Ошибка скачивания {src}: {response.status}")
                             continue
