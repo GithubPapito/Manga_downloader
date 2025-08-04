@@ -75,4 +75,4 @@ def check_status(status_code):
 
 def sanitize_filename(name):
     """Очищает имя от недопустимых символов."""
-    return re.sub(r'[\\/:*?"<>|~]', ' ', name)
+    return re.sub(r'[\\/:*?"<>|~]', '_', name)
