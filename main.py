@@ -11,7 +11,7 @@ IMG_URLS = ["img33.imgslib.link", "img2h.imgslib.link"]
 GROUP_L = [
     "web.usagi.one", "1.seimanga.me", "2.mintmanga.one",
     "selfmanga.live", "rumix.me", "zz.readmanga.io",
-    "t.readmanga.io"
+    "t.readmanga.io", "a.zazaza.me"
 ]
 
 def domain_definition(url, sel):
