@@ -50,7 +50,7 @@ def convert_to_pdf(my_cwd, manga_name, format):
     """Конвертирует изображения в PDF."""
     print(f'Создание {format}')
     path = os.path.join(my_cwd, manga_name)
-    for n in tqdm(os.listdir(path), desc='Прогресс создания PDF'):
+    for n in tqdm(os.listdir(path), desc=f'Прогресс создания {format}'):
         vol_path = os.path.join(path, n)
         image_files = []
         for v in sorted(os.listdir(vol_path), key=lambda x: float(x)):
