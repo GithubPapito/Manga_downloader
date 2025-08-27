@@ -7,7 +7,6 @@ from tqdm import tqdm
 import httplib2
 from utils import convert_to_pdf, sanitize_filename
 
-
 class MangaDown_MLib:
     def __init__(self, url, dom, img_url, sel):
         self.url = url
@@ -24,6 +23,10 @@ class MangaDown_MLib:
             "Authorization": f"Bearer {self.token}",
             "Origin": f"{dom}",
             "Referer": f"{dom}/",
+            "Sec-Fetch-Dest": "empty",
+            "Sec-Fetch-Mode": "cors",
+            "Sec-Fetch-Site": "cross-site",
+            "Site-Id": "1",
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0"
         }
 
@@ -133,8 +136,9 @@ class MangaDown_MLib:
 
     def get_manga_data(self):
         """Получает основную информацию о манге."""
+        params = {"fields[]": "eng_name"}
         try:
-            response = requests.get(f"{self.base_url}/{self.slug_url}", timeout=10, headers=self.headers)
+            response = requests.get(f"{self.base_url}/{self.slug_url}", params=params, timeout=10, headers=self.headers)
             if response.status_code == 200:
                 data = response.json()
                 self.manga_name = data.get("data", {}).get("name", "Unknown Manga")

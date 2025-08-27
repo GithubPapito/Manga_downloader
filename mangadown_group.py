@@ -11,7 +11,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from utils import qest, create_save, authorization, convert_to_pdf, check_status, sanitize_filename
 
-
 class MangaDown_group:
     def __init__(self, url, sel):
         self.url = url
