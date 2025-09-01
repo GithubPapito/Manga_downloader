@@ -82,9 +82,9 @@ class MangaDown_MLib:
                         fileType = src.split(".")[-1][:4]
                     try:
                         response, content = h.request(src, headers=self.headers)
-                        while response.status == 429:
+                        while response.status in (429, 522):
                             print(f"Ошибка скачивания {src}: {response.status}")
-                            time.sleep(0.25)
+                            time.sleep(0.1)
                             print("Повторное скачивание")
                             response, content = h.request(src, headers=self.headers)
                         if response.status != 200:
