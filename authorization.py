@@ -1,9 +1,12 @@
 import time
 from selenium import webdriver
 import json
+from selenium.webdriver.chrome.options import Options
 
 def authorization(url):
-    driver = webdriver.Edge()
+    chrome_options = Options()
+    chrome_options.add_argument("--log-level=3")
+    driver = webdriver.Chrome(options=chrome_options)
     driver.get(url)
 
     time.sleep(30)
