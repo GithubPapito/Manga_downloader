@@ -8,14 +8,14 @@ import httplib2
 from utils import convert_to_pdf, sanitize_filename
 
 class MangaDown_MLib:
-    def __init__(self, url, dom, img_url, sel):
+    def __init__(self, url, dom, img_url, sel, base_url, Site_Id):
         self.url = url
         self.token = None
         self.manga_name = None
         self.slug_url = None
         self.my_cwd = os.getcwd()
         self.volumes = {}
-        self.base_url = "https://api.cdnlibs.org/api/manga"
+        self.base_url = base_url
         self.img_url = img_url
 
         self.get_tok()
@@ -26,7 +26,7 @@ class MangaDown_MLib:
             "Sec-Fetch-Dest": "empty",
             "Sec-Fetch-Mode": "cors",
             "Sec-Fetch-Site": "cross-site",
-            "Site-Id": "1",
+            "Site-Id": Site_Id,
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0"
         }
 
