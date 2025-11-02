@@ -22,7 +22,7 @@ def domain_definition(url, sel):
     elif dom in H_LIB:
         MangaDown_MLib(url, dom, IMG_URLS[1], sel, "https://hapi.hentaicdn.org/api/manga", "4")
     elif dom in GROUP_L:
-        MangaDown_group(url, sel)
+        MangaDown_group(url,  dom, sel)
     else:
         print("Адрес не поддерживается. Проверьте обновления программы.")
         time.sleep(15)

@@ -12,9 +12,16 @@ from selenium.webdriver.chrome.options import Options
 from utils import qest, create_save, authorization, convert_to_pdf, check_status, sanitize_filename
 
 class MangaDown_group:
-    def __init__(self, url, sel):
+    def __init__(self, url, dom, sel):
         self.url = url
         self.headers = {
+            "accept": "*/*",
+            "cache-control": "no-cache",
+            "connection": "keep-alive",
+            "host": f"{dom}",
+            "referer": f"https://{dom}/",
+            "sec-fetch-mode": "no-cors",
+            "sec-fetch-site": "same-site",
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36"}
         self.links = []
         self.manga_name = None
