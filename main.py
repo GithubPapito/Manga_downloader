@@ -9,9 +9,7 @@ M_LIB = ["mangalib.me"]
 H_LIB = ["hentailib.me"]
 IMG_URLS = ["img33.imgslib.link", "img3h.hentaicdn.org"]
 GROUP_L = [
-    "web.usagi.one", "1.seimanga.me", "2.mintmanga.one",
-    "selfmanga.live", "rumix.me", "zz.readmanga.io",
-    "t.readmanga.io", "a.zazaza.me", "3.readmanga.ru"
+    "web.usagi.one", "1.seimanga.me", "a.zazaza.me"
 ]
 
 def domain_definition(url, sel):

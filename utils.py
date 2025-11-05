@@ -33,18 +33,13 @@ def create_save(rev, links):
     with open('save.json', 'w') as file:
         json.dump(save, file)
 
-def authorization(driver, my_cwd):
+def authorization(session, my_cwd):
     """Авторизует пользователя с использованием cookies."""
     if 'cookies.json' in os.listdir(my_cwd):
         with open('cookies.json', 'r') as file:
-            cookies = json.load(file)
-            for cookie in cookies:
-                try:
-                    driver.add_cookie(cookie)
-                except:
-                    pass
-        driver.refresh()
-    return driver
+            for c in json.load(file):
+                session.cookies.set(c["name"], c["value"], domain=c.get("domain"))
+            return session
 
 def convert_to_pdf(my_cwd, manga_name, format):
     """Конвертирует изображения в PDF."""
