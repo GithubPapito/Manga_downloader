@@ -1,16 +1,14 @@
 import re
 import time
 from mangadown_mlib import MangaDown_MLib
-from mangadown_group import MangaDown_group
+from mangadown_group import MangaDownGroup
 from utils import selection
 
 # Поддерживаемые домены
 M_LIB = ["mangalib.me"]
 H_LIB = ["hentailib.me"]
 IMG_URLS = ["img33.imgslib.link", "img3h.hentaicdn.org"]
-GROUP_L = [
-    "web.usagi.one", "1.seimanga.me", "a.zazaza.me"
-]
+GROUP_L = ["web.usagi.one", "1.seimanga.me", "a.zazaza.me", "2.mintmanga.one"]
 
 def domain_definition(url, sel):
     """Определяет тип сайта и запускает соответствующий загрузчик."""
@@ -20,7 +18,7 @@ def domain_definition(url, sel):
     elif dom in H_LIB:
         MangaDown_MLib(url, dom, IMG_URLS[1], sel, "https://hapi.hentaicdn.org/api/manga", "4")
     elif dom in GROUP_L:
-        MangaDown_group(url,  dom, sel)
+        MangaDownGroup(url,  dom, sel)
     else:
         print("Адрес не поддерживается. Проверьте обновления программы.")
         time.sleep(15)

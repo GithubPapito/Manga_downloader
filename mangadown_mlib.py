@@ -92,7 +92,7 @@ class MangaDown_MLib:
                             continue
                         with open(os.path.join(path, f"{i}.{fileType}"), 'wb') as f:
                             f.write(content)
-                        time.sleep(random.uniform(0.15, 0.5))
+                        time.sleep(random.uniform(0.2, 0.35))
                     except Exception as e:
                         print(f"Ошибка при скачивании страницы: {e}")
 

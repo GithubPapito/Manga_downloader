@@ -12,27 +12,6 @@ def selection():
     else:
         return "pdf"
 
-def qest(my_cwd, links):
-    """Проверяет наличие сохраненного прогресса и предлагает продолжить с него."""
-    if 'save.json' in os.listdir(my_cwd):
-        save = load_save()
-        if save:
-            print(f"Продолжить скачивание с {save[0]}? (y/n)")
-            if input().lower() == "y":
-                return save
-    return links
-
-def load_save():
-    """Загружает сохраненный прогресс из файла."""
-    with open('save.json', 'r') as file:
-        return json.load(file)
-
-def create_save(rev, links):
-    """Создает или обновляет файл сохранения."""
-    save = links[rev:]
-    with open('save.json', 'w') as file:
-        json.dump(save, file)
-
 def authorization(session, my_cwd):
     """Авторизует пользователя с использованием cookies."""
     if 'cookies.json' in os.listdir(my_cwd):
