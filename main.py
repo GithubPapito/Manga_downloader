@@ -5,10 +5,10 @@ from mangadown_group import MangaDownGroup
 from utils import selection
 
 # Поддерживаемые домены
-M_LIB = ["mangalib.me"]
+M_LIB = ["mangalib.me", "mangalib.org"]
 H_LIB = ["hentailib.me"]
 IMG_URLS = ["img33.imgslib.link", "img3h.hentaicdn.org"]
-GROUP_L = ["web.usagi.one", "1.seimanga.me", "a.zazaza.me", "2.mintmanga.one"]
+GROUP_L = ["web.usagi.one", "1.seimanga.me", "a.zazaza.me"]
 
 def domain_definition(url, sel):
     """Определяет тип сайта и запускает соответствующий загрузчик."""
