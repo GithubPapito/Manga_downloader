@@ -7,7 +7,7 @@ import zipfile
 
 def selection():
     y = input("Создать PDF или CBZ (по умолчанию PDF)")
-    if y in ["CBZ", "cbz"]:
+    if y in ["CBZ", "cbz", "2", "c"]:
         return "cbz"
     else:
         return "pdf"
@@ -19,6 +19,7 @@ def authorization(session, my_cwd):
             for c in json.load(file):
                 session.cookies.set(c["name"], c["value"], domain=c.get("domain"))
             return session
+    return None
 
 def convert_to_pdf(my_cwd, manga_name, format):
     """Конвертирует изображения в PDF."""
