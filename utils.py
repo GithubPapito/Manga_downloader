@@ -33,9 +33,15 @@ def convert_to_pdf(my_cwd, manga_name, format):
             files = os.listdir(img_path)
             image_files.extend([os.path.join(img_path, img) for img in sorted(files, key=lambda p: float(re.search(r'(\d+)', p).group()))])
         if format == "cbz":
-            with zipfile.ZipFile(f"{path}\\{n}.cbz", 'w', zipfile.ZIP_DEFLATED) as cbz:
-                for image_path in image_files:
-                    cbz.write(image_path, image_path)
+            out_name = os.path.join(path, f"{n}.cbz")
+            total = len(image_files)  # сколько всего страниц
+            digits = len(str(total))  # сколько цифр нужно для нумерации
+            with zipfile.ZipFile(out_name, 'w', zipfile.ZIP_DEFLATED) as cbz:
+                for index, image_path in enumerate(image_files, 1):
+                    ext = os.path.splitext(image_path)[1]  # .png / .jpg и т.д.
+                    num = str(index).zfill(digits)  # 0001, 0002 ...
+                    arcname = f"том {n} изображение {num}{ext}"
+                    cbz.write(image_path, arcname)
         else:
             pdf_data = img2pdf.convert(image_files)
             with open(os.path.join(path, f"{n}.pdf"), "wb") as file:
