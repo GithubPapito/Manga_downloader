@@ -23,6 +23,7 @@ def domain_definition(url, sel):
         print("Адрес не поддерживается. Проверьте обновления программы.")
         time.sleep(15)
         exit(0)
+    time.sleep(20)
 
 if __name__ == "__main__":
     print("Введите адрес манги")

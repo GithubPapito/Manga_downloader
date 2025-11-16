@@ -138,7 +138,7 @@ class MangaDownGroup:
                     with open(os.path.join(chapter_path, f"{i}.{ext}"), 'wb') as f:
                         f.write(content)
 
-                    time.sleep(random.uniform(0.2, 0.35))
+                    time.sleep(random.uniform(0.35, 0.5))
 
                 except Exception as e:
                     print(f"Ошибка при скачивании страницы: {e}")
