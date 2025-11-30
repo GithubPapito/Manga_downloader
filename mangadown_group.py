@@ -2,6 +2,7 @@ import os
 import random
 import time
 import re
+from http.client import IncompleteRead
 from tqdm import tqdm
 import httplib2
 import requests
@@ -124,21 +125,36 @@ class MangaDownGroup:
                 if ext not in ("jpg", "png", "svg"):
                     ext = src.split(".")[-1][:4]
 
-                try:
-                    resp, content = http.request(src, headers=self.headers_img)
-                    while resp.status in (429, 522):
-                        print(f"Ошибка скачивания {src}: {resp.status} — повтор")
-                        time.sleep(0.25)
+                attempt = 0
+                max_attempts = 10  # количество попыток повторного скачивания
+
+                while attempt < max_attempts:
+                    try:
                         resp, content = http.request(src, headers=self.headers_img)
 
-                    if resp.status != 200:
-                        print(f"Ошибка скачивания {src}: {resp.status}")
-                        continue
+                        while resp.status in (429, 522):
+                            print(f"Ошибка скачивания {src}: {resp.status} — повтор")
+                            time.sleep(0.25)
+                            resp, content = http.request(src, headers=self.headers_img)
 
-                    with open(os.path.join(chapter_path, f"{i}.{ext}"), 'wb') as f:
-                        f.write(content)
+                        if resp.status != 200:
+                            print(f"Ошибка скачивания {src}: {resp.status}")
+                            break
 
-                    time.sleep(random.uniform(0.35, 0.5))
+                        with open(os.path.join(chapter_path, f"{i}.{ext}"), 'wb') as f:
+                            f.write(content)
 
-                except Exception as e:
-                    print(f"Ошибка при скачивании страницы: {e}")
+                        time.sleep(random.uniform(0.35, 0.5))
+                        break
+
+                    except IncompleteRead:
+                        attempt += 1
+                        print(f"IncompleteRead при скачивании {src}. Попытка {attempt}/{max_attempts}.")
+                        if attempt >= max_attempts:
+                            print(f"Не удалось скачать {src} после {max_attempts} попыток.")
+                        else:
+                            time.sleep(0.3)  # пауза перед повтором
+
+                    except Exception as e:
+                        print(f"Ошибка при скачивании страницы: {e}")
+                        break
