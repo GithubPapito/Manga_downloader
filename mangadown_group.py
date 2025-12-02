@@ -110,7 +110,7 @@ class MangaDownGroup:
 
             script_tag = soup.find("script", string=lambda x: x and "rm_h.readerInit" in x)
             if not script_tag:
-                print("Ошибка: не найден блок данных со страницами главы")
+                print(f"Ошибка: не найден блок данных со страницами главы, для сайта {self.domain} необходим файл cookies")
                 time.sleep(15)
                 exit(0)
 
@@ -153,7 +153,7 @@ class MangaDownGroup:
                         if attempt >= max_attempts:
                             print(f"Не удалось скачать {src} после {max_attempts} попыток.")
                         else:
-                            time.sleep(0.3)  # пауза перед повтором
+                            time.sleep(0.3)
 
                     except Exception as e:
                         print(f"Ошибка при скачивании страницы: {e}")

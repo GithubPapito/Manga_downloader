@@ -1,5 +1,6 @@
 import os
 import json
+import time
 import img2pdf
 from tqdm import tqdm
 import re
@@ -52,6 +53,7 @@ def check_status(status_code):
     """Проверяет статус ответа сервера."""
     if status_code != 200:
         print(f'TERMINATED! Server return code {status_code}!')
+        time.sleep(20)
         exit(0)
 
 def sanitize_filename(name):
