@@ -84,7 +84,7 @@ class MangaDown_MLib:
                         response, content = h.request(src, headers=self.headers)
                         while response.status in (429, 522):
                             print(f"Ошибка скачивания {src}: {response.status}")
-                            time.sleep(0.25)
+                            time.sleep(1)
                             print("Повторное скачивание")
                             response, content = h.request(src, headers=self.headers)
                         if response.status != 200:
@@ -92,7 +92,7 @@ class MangaDown_MLib:
                             continue
                         with open(os.path.join(path, f"{i}.{fileType}"), 'wb') as f:
                             f.write(content)
-                        time.sleep(random.uniform(0.2, 0.35))
+                        time.sleep(random.uniform(0.3, 0.45))
                     except Exception as e:
                         print(f"Ошибка при скачивании страницы: {e}")
 

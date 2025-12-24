@@ -134,7 +134,7 @@ class MangaDownGroup:
 
                         while resp.status in (429, 522):
                             print(f"Ошибка скачивания {src}: {resp.status} — повтор")
-                            time.sleep(0.25)
+                            time.sleep(1)
                             resp, content = http.request(src, headers=self.headers_img)
 
                         if resp.status != 200:
