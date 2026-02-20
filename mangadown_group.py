@@ -8,6 +8,8 @@ import httplib2
 import requests
 from bs4 import BeautifulSoup
 from utils import authorization, convert_to_pdf, check_status, sanitize_filename
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 
 class MangaDownGroup:
     def __init__(self, url, dom, sel):
@@ -52,6 +54,7 @@ class MangaDownGroup:
         self.get_manga_data()
         self.get_chapter_links()
         self.create_path()
+        self.driver = self.init_driver()
         self.download()
         convert_to_pdf(self.cwd, self.manga_name, sel)
 
@@ -61,10 +64,19 @@ class MangaDownGroup:
             response = requests.get(self.url, headers=self.headers)
             check_status(response.status_code)
             page = BeautifulSoup(response.content, 'html.parser')
-            self.manga_name = page.select_one('span.name').text
+            self.manga_name = page.find_all('div', class_="py-1")[0].text
         except Exception as e:
             print(f"Ошибка при получении данных манги: {e}")
             exit(0)
+
+    def init_driver(self):
+        chrome_options = Options()
+        chrome_options.add_argument("--headless=new")
+        chrome_options.add_argument("--disable-gpu")
+        chrome_options.add_argument("--no-sandbox")
+        chrome_options.add_argument("--disable-dev-shm-usage")
+
+        return webdriver.Chrome(options=chrome_options)
 
     def get_chapter_links(self):
         """Получает ссылки на главы."""
@@ -93,6 +105,10 @@ class MangaDownGroup:
             vol, ch = link.split('/')[2:4]
             os.makedirs(os.path.join(base_path, vol, ch), exist_ok=True)
 
+    def selen(self, url):
+        self.driver.get(f"{url}?mtr=true")
+        return self.driver.page_source
+
     def download(self):
         """Скачивает главы манги."""
         http = httplib2.Http('.cache')
@@ -105,8 +121,7 @@ class MangaDownGroup:
             chapter_path = os.path.join(self.cwd, self.manga_name, vol, ch)
             full_url = self.url.rsplit('/', 1)[0] + link
 
-            response = session.get(full_url, timeout=10, headers=self.headers)
-            soup = BeautifulSoup(response.content, 'html.parser')
+            soup = BeautifulSoup(self.selen(full_url), 'html.parser')
 
             script_tag = soup.find("script", string=lambda x: x and "rm_h.readerInit" in x)
             if not script_tag:
@@ -115,7 +130,7 @@ class MangaDownGroup:
                 exit(0)
 
             matches = re.findall(
-                r"\['(https?://[^']+/)','',\"([^\"]+\.[a-zA-Z0-9]{3,4})",
+                r"\['(https?://[^']+/)','',\"([^\"]+)\"",
                 script_tag.string
             )
             cleaned_urls = [domain + path for domain, path in matches]
@@ -137,6 +152,10 @@ class MangaDownGroup:
                             time.sleep(1)
                             resp, content = http.request(src, headers=self.headers_img)
 
+                        if resp.status == 300:
+                            src = src.split("?", 1)[0]
+                            resp, content = http.request(src, headers=self.headers_img)
+
                         if resp.status != 200:
                             print(f"Ошибка скачивания {src}: {resp.status}")
                             break
@@ -144,7 +163,7 @@ class MangaDownGroup:
                         with open(os.path.join(chapter_path, f"{i}.{ext}"), 'wb') as f:
                             f.write(content)
 
-                        time.sleep(random.uniform(0.35, 0.5))
+                        time.sleep(random.uniform(0.25, 0.35))
                         break
 
                     except IncompleteRead:
@@ -158,3 +177,4 @@ class MangaDownGroup:
                     except Exception as e:
                         print(f"Ошибка при скачивании страницы: {e}")
                         break
+        self.driver.quit()
