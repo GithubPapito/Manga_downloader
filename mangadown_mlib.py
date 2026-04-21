@@ -78,7 +78,7 @@ class MangaDown_MLib:
                 path = os.path.join(self.my_cwd, self.manga_name, f'vol{vol}', ch)
                 for i, src in enumerate(tqdm(page_urls, desc=f'Скачивание том {vol} глава {ch}'), start=1):
                     fileType = src.split(".")[-1][:3]
-                    if fileType not in ("jpg", "png", "svg"):
+                    if fileType not in ("jpg", "png", "svg", "gif"):
                         fileType = src.split(".")[-1][:4]
                     try:
                         response, content = h.request(src, headers=self.headers)

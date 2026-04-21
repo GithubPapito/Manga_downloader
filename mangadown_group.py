@@ -137,7 +137,7 @@ class MangaDownGroup:
 
             for i, src in enumerate(tqdm(cleaned_urls, desc=f'Скачивание том {vol} глава {ch}'), start=1):
                 ext = src.split(".")[-1][:3]
-                if ext not in ("jpg", "png", "svg"):
+                if ext not in ("jpg", "png", "svg", "gif"):
                     ext = src.split(".")[-1][:4]
 
                 attempt = 0
