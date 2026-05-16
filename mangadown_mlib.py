@@ -52,15 +52,18 @@ class MangaDown_MLib:
             if response.status_code == 200:
                 data = response.json()
                 pages = data.get("data", {}).get("pages", [])
+
                 return [
                     f"https://{self.img_url}{page['url']}"
                     if page["url"].startswith("//manga/")
                     else page["url"]
                     for page in pages
                 ]
+
             print(f"Ошибка при получении страниц: {response.status_code}")
             time.sleep(3)
             return None
+
         except Exception as e:
             print(f"Ошибка при получении страниц: {e}")
             return None
@@ -68,6 +71,7 @@ class MangaDown_MLib:
     def download(self):
         """Скачивает все главы манги."""
         h = httplib2.Http('.cache')
+
         for vol in self.volumes:
             for ch in self.volumes[vol]:
                 page_urls = self.get_pages(vol, ch)
@@ -76,23 +80,30 @@ class MangaDown_MLib:
                     continue
 
                 path = os.path.join(self.my_cwd, self.manga_name, f'vol{vol}', ch)
+
                 for i, src in enumerate(tqdm(page_urls, desc=f'Скачивание том {vol} глава {ch}'), start=1):
                     fileType = src.split(".")[-1][:3]
+
                     if fileType not in ("jpg", "png", "svg", "gif"):
                         fileType = src.split(".")[-1][:4]
+
                     try:
                         response, content = h.request(src, headers=self.headers)
+
                         while response.status in (429, 522):
                             print(f"Ошибка скачивания {src}: {response.status}")
                             time.sleep(1)
                             print("Повторное скачивание")
                             response, content = h.request(src, headers=self.headers)
+
                         if response.status != 200:
                             print(f"Ошибка скачивания {src}: {response.status}")
                             continue
+
                         with open(os.path.join(path, f"{i}.{fileType}"), 'wb') as f:
                             f.write(content)
                         time.sleep(random.uniform(0.3, 0.45))
+
                     except Exception as e:
                         print(f"Ошибка при скачивании страницы: {e}")
 
@@ -101,6 +112,7 @@ class MangaDown_MLib:
         self.manga_name = sanitize_filename(self.manga_name)
         path = os.path.join(self.my_cwd, self.manga_name)
         os.makedirs(path, exist_ok=True)
+
         for vol in self.volumes:
             for ch in self.volumes[vol]:
                 os.makedirs(os.path.join(path, f'vol{vol}', ch), exist_ok=True)
@@ -108,6 +120,7 @@ class MangaDown_MLib:
     def get_chapters(self):
         """Получает список всех глав манги."""
         url = f"{self.base_url}/{self.slug_url}/chapters"
+
         try:
             response = requests.get(url, timeout=10, headers=self.headers)
             if response.status_code == 200:
@@ -118,10 +131,14 @@ class MangaDown_MLib:
                     if volume_number not in self.volumes:
                         self.volumes[volume_number] = []
                     self.volumes[volume_number].append(chapter.get("number", "0"))
+
                 return
+
             print(f"Ошибка при получении глав: {response.status_code}")
+
         except Exception as e:
             print(f"Ошибка при получении списка глав: {e}")
+
         time.sleep(10)
         exit(0)
 
@@ -129,14 +146,17 @@ class MangaDown_MLib:
         """Извлекает slug манги из URL."""
         try:
             self.slug_url = re.search(r'manga/(.+?)(?:\?|$)', self.url).group(1)
+
         except (AttributeError, IndexError):
             self.slug_url = self.url.rstrip('/').split('/')[-1]
+
         if not self.slug_url:
             raise ValueError(f"Не удалось извлечь slug из URL: {self.url}")
 
     def get_manga_data(self):
         """Получает основную информацию о манге."""
         params = {"fields[]": "eng_name"}
+
         try:
             response = requests.get(f"{self.base_url}/{self.slug_url}", params=params, timeout=10, headers=self.headers)
             if response.status_code == 200:
@@ -144,7 +164,9 @@ class MangaDown_MLib:
                 self.manga_name = data.get("data", {}).get("name", "Unknown Manga")
                 return
             print(f"Ошибка при получении информации о манге: {response.status_code}")
+
         except Exception as e:
             print(f"Ошибка при получении данных манги: {e}")
+
         time.sleep(10)
         exit(0)

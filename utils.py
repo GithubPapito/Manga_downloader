@@ -27,6 +27,7 @@ def authorization(session, my_cwd):
 def fix_image(image_path):
     try:
         img2pdf.convert(image_path)
+
     except Exception as e:
         print("Проблемный файл:", image_path)
         print(e)

@@ -56,6 +56,7 @@ class MangaDownGroup:
         self.create_path()
         self.driver = self.init_driver()
         self.download()
+
         convert_to_pdf(self.cwd, self.manga_name, sel)
 
     def get_manga_data(self):
@@ -65,6 +66,7 @@ class MangaDownGroup:
             check_status(response.status_code)
             page = BeautifulSoup(response.content, 'html.parser')
             self.manga_name = page.find_all('div', class_="py-1")[0].text
+
         except Exception as e:
             print(f"Ошибка при получении данных манги: {e}")
             exit(0)
@@ -91,6 +93,7 @@ class MangaDownGroup:
                 for link in div.find_all('a', class_="chapter-link")
             ]
             self.links.reverse()
+
         except Exception as e:
             print(f"Ошибка при получении списка глав: {e}")
             exit(0)
@@ -124,6 +127,7 @@ class MangaDownGroup:
             soup = BeautifulSoup(self.selen(full_url), 'html.parser')
 
             script_tag = soup.find("script", string=lambda x: x and "rm_h.readerInit" in x)
+
             if not script_tag:
                 print(f"Ошибка: не найден блок данных со страницами главы, для сайта {self.domain} необходим файл cookies")
                 time.sleep(15)
@@ -137,6 +141,7 @@ class MangaDownGroup:
 
             for i, src in enumerate(tqdm(cleaned_urls, desc=f'Скачивание том {vol} глава {ch}'), start=1):
                 ext = src.split(".")[-1][:3]
+
                 if ext not in ("jpg", "png", "svg", "gif"):
                     ext = src.split(".")[-1][:4]
 
@@ -152,7 +157,7 @@ class MangaDownGroup:
                             time.sleep(1)
                             resp, content = http.request(src, headers=self.headers_img)
 
-                        if resp.status == 300:
+                        if resp.status in (300, 502):
                             src = src.split("?", 1)[0]
                             resp, content = http.request(src, headers=self.headers_img)
 
@@ -177,4 +182,5 @@ class MangaDownGroup:
                     except Exception as e:
                         print(f"Ошибка при скачивании страницы: {e}")
                         break
+
         self.driver.quit()
