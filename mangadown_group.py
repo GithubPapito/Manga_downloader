@@ -12,9 +12,10 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
 class MangaDownGroup:
-    def __init__(self, url, dom, sel):
+    def __init__(self, url, dom, sel, auto_start=True):
         self.url = url
         self.domain = dom
+        self.sel = sel
         self.headers = {
             "accept": "*/*",
             "cache-control": "no-cache",
@@ -53,11 +54,15 @@ class MangaDownGroup:
 
         self.get_manga_data()
         self.get_chapter_links()
+
+        if auto_start:
+            self.start()
+
+    def start(self):
         self.create_path()
         self.driver = self.init_driver()
         self.download()
-
-        convert_to_pdf(self.cwd, self.manga_name, sel)
+        convert_to_pdf(self.cwd, self.manga_name, self.sel)
 
     def get_manga_data(self):
         """Получает данные о манге (название)."""

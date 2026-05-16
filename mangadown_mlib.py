@@ -8,7 +8,7 @@ import httplib2
 from utils import convert_to_pdf, sanitize_filename
 
 class MangaDown_MLib:
-    def __init__(self, url, dom, img_url, sel, base_url, Site_Id):
+    def __init__(self, url, dom, img_url, sel, base_url, Site_Id, auto_start=True):
         self.url = url
         self.token = None
         self.manga_name = None
@@ -17,6 +17,7 @@ class MangaDown_MLib:
         self.volumes = {}
         self.base_url = base_url
         self.img_url = img_url
+        self.sel = sel
 
         self.get_tok()
         self.headers = {
@@ -33,9 +34,13 @@ class MangaDown_MLib:
         self.get_slug()
         self.get_manga_data()
         self.get_chapters()
+        if auto_start:
+            self.start()
+
+    def start(self):
         self.create_path()
         self.download()
-        convert_to_pdf(self.my_cwd, self.manga_name, sel)
+        convert_to_pdf(self.my_cwd, self.manga_name, self.sel)
 
     def get_tok(self):
         """Запрашивает токен авторизации."""
