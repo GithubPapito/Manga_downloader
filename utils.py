@@ -1,12 +1,12 @@
 import os
 import json
-import time
 import img2pdf
 from tqdm import tqdm
 import re
 import zipfile
 from PIL import Image
 import tempfile
+from exceptions import DownloadError
 
 def selection():
     y = input("Создать PDF или CBZ (по умолчанию PDF)")
@@ -110,11 +110,8 @@ def convert_to_pdf(my_cwd, manga_name, format):
     print(f'Создание {format} завершено')
 
 def check_status(status_code):
-    """Проверяет статус ответа сервера."""
     if status_code != 200:
-        print(f'TERMINATED! Server return code {status_code}!')
-        time.sleep(20)
-        exit(0)
+        raise DownloadError(f"Server returned {status_code}")
 
 def sanitize_filename(name):
     """Очищает имя от недопустимых символов."""

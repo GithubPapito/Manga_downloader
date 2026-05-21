@@ -10,6 +10,7 @@ from bs4 import BeautifulSoup
 from utils import authorization, convert_to_pdf, check_status, sanitize_filename
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from exceptions import ChapterFetchError, DownloadError, MangaNotFoundError
 
 class MangaDownGroup:
     def __init__(self, url, dom, sel, auto_start=True):
@@ -73,8 +74,7 @@ class MangaDownGroup:
             self.manga_name = page.find_all('div', class_="py-1")[0].text
 
         except Exception as e:
-            print(f"Ошибка при получении данных манги: {e}")
-            exit(0)
+            raise MangaNotFoundError(f"Ошибка при получении данных манги: {e}") from e
 
     def init_driver(self):
         chrome_options = Options()
@@ -83,7 +83,10 @@ class MangaDownGroup:
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--disable-dev-shm-usage")
 
-        return webdriver.Chrome(options=chrome_options)
+        driver = webdriver.Chrome(options=chrome_options)
+        driver.command_executor.set_timeout(300)
+
+        return driver
 
     def get_chapter_links(self):
         """Получает ссылки на главы."""
@@ -100,8 +103,7 @@ class MangaDownGroup:
             self.links.reverse()
 
         except Exception as e:
-            print(f"Ошибка при получении списка глав: {e}")
-            exit(0)
+            raise ChapterFetchError(f"Ошибка при получении списка глав: {e}") from e
 
     def create_path(self):
         """Создает директории для сохранения манги."""
@@ -134,9 +136,7 @@ class MangaDownGroup:
             script_tag = soup.find("script", string=lambda x: x and "rm_h.readerInit" in x)
 
             if not script_tag:
-                print(f"Ошибка: не найден блок данных со страницами главы, для сайта {self.domain} необходим файл cookies")
-                time.sleep(15)
-                exit(0)
+                raise DownloadError(f"Не удалось получить страницы главы для сайта")
 
             matches = re.findall(
                 r"\['(https?://[^']+/)','',\"([^\"]+)\"",

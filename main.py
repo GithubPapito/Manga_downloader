@@ -1,6 +1,7 @@
 import re
 from mangadown_mlib import MangaDown_MLib
 from mangadown_group import MangaDownGroup
+from exceptions import MangaDownloaderError
 
 # Поддерживаемые домены
 M_LIB = ["mangalib.me", "mangalib.org"]
@@ -17,7 +18,7 @@ def clear():
 
 def title():
     print("=" * 60)
-    print("        Manga Downloader CLI")
+    print("        Manga Downloader")
     print("=" * 60)
 
 def ask_url():
@@ -305,8 +306,11 @@ if __name__ == "__main__":
             print("\n\nВыход...")
             break
 
-        except Exception as e:
+        except MangaDownloaderError as e:
             print(f"\nОшибка: {e}")
+
+        except Exception as e:
+            print(f"\nНеожиданная ошибка: {e}")
 
         if not ask_continue():
             break

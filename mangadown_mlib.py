@@ -6,6 +6,7 @@ import random
 from tqdm import tqdm
 import httplib2
 from utils import convert_to_pdf, sanitize_filename
+from exceptions import ChapterFetchError, MangaNotFoundError
 
 class MangaDown_MLib:
     def __init__(self, url, dom, img_url, sel, base_url, Site_Id, auto_start=True):
@@ -136,16 +137,10 @@ class MangaDown_MLib:
                     if volume_number not in self.volumes:
                         self.volumes[volume_number] = []
                     self.volumes[volume_number].append(chapter.get("number", "0"))
-
                 return
 
-            print(f"Ошибка при получении глав: {response.status_code}")
-
         except Exception as e:
-            print(f"Ошибка при получении списка глав: {e}")
-
-        time.sleep(10)
-        exit(0)
+            raise ChapterFetchError (f"Ошибка при получении списка глав: {e}") from e
 
     def get_slug(self):
         """Извлекает slug манги из URL."""
@@ -168,10 +163,6 @@ class MangaDown_MLib:
                 data = response.json()
                 self.manga_name = data.get("data", {}).get("name", "Unknown Manga")
                 return
-            print(f"Ошибка при получении информации о манге: {response.status_code}")
 
         except Exception as e:
-            print(f"Ошибка при получении данных манги: {e}")
-
-        time.sleep(10)
-        exit(0)
+            raise MangaNotFoundError (f"Ошибка при получении данных манги: {e}") from e
