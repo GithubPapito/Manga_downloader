@@ -1,7 +1,18 @@
 import re
+import os
+import questionary
 from mangadown_mlib import MangaDown_MLib
 from mangadown_group import MangaDownGroup
 from exceptions import MangaDownloaderError
+from questionary import Style
+
+custom_style = Style([
+    ('qmark', 'fg:#ff9d00 bold'),
+    ('question', 'bold'),
+    ('answer', 'fg:#00ff00 bold'),
+    ('pointer', 'fg:#ff9d00 bold'),
+    ('highlighted', 'fg:#ff9d00 bold'),
+])
 
 # Поддерживаемые домены
 M_LIB = ["mangalib.me", "mangalib.org"]
@@ -14,7 +25,7 @@ GROUP_L = ["web.usagi.one", "1.seimanga.me", "a.zazaza.me"]
 # -------------------------------------------------
 
 def clear():
-    print("\n" * 3)
+    os.system("cls" if os.name == "nt" else "clear")
 
 def title():
     print("=" * 60)
@@ -22,24 +33,24 @@ def title():
     print("=" * 60)
 
 def ask_url():
-    print("\nВведите ссылку на мангу:")
-    return input("> ").strip()
+    return questionary.text(
+        "Введите ссылку:",
+        style=custom_style,
+        validate=lambda text:
+        True if get_domain(text) in (M_LIB + H_LIB + GROUP_L)
+        else "Данный сайт не поддерживается"
+    ).ask()
 
 def ask_format():
-    print("\nВыберите формат:")
-    print("1. PDF")
-    print("2. CBZ")
-
-    while True:
-        sel = input("> ").strip()
-
-        if sel == "1":
-            return "pdf"
-
-        if sel == "2":
-            return "cbz"
-
-        print("Неверный выбор")
+    result = questionary.select(
+        "Выберите формат:",
+        style=custom_style,
+        choices=[
+            "PDF",
+            "CBZ"
+        ]
+    ).ask()
+    return result.lower()
 
 def ask_token():
     print("\nВведите токен")
@@ -48,9 +59,10 @@ def ask_token():
     return input("> ").strip()
 
 def ask_continue():
-    print("\nСкачать ещё одну мангу? [y/n]")
-
-    return input("> ").lower().strip() == "y"
+    return questionary.confirm(
+        "Скачать ещё одну мангу?",
+        style=custom_style
+    ).ask()
 
 # -------------------------------------------------
 # Получение домена
@@ -94,63 +106,30 @@ def get_chapters_group(loader):
     return chapters
 
 # -------------------------------------------------
-# Отображение глав
-# -------------------------------------------------
-
-def print_chapters(chapters):
-
-    print("\nНайденные главы:\n")
-
-    for index, (vol, ch) in enumerate(chapters, start=1):
-        print(f"[{index}] Том {vol} Глава {ch}")
-
-# -------------------------------------------------
 # Выбор глав
 # -------------------------------------------------
 
 def select_chapters(chapters):
+    choices = []
 
-    print("\nВведите номера глав")
-    print("Пример:")
-    print("1,2,3")
-    print("1-10")
-    print("all")
+    for vol, ch in chapters:
+        choices.append(
+            f"Том {vol} Глава {ch}"
+        )
 
-    raw = input("> ").strip().lower()
-
-    if raw == "all":
-        return chapters
+    selected = questionary.checkbox(
+        "Выберите главы:",
+        style=custom_style,
+        choices=choices
+    ).ask()
 
     result = []
 
-    parts = raw.split(",")
+    for item in selected:
+        parts = item.replace("Том ", "").replace(" Глава ", ":")
+        vol, ch = parts.split(":")
 
-    for part in parts:
-
-        part = part.strip()
-
-        if "-" in part:
-
-            start, end = part.split("-")
-
-            start = int(start)
-            end = int(end)
-
-            for i in range(start, end + 1):
-
-                if 1 <= i <= len(chapters):
-                    result.append(chapters[i - 1])
-
-        else:
-
-            try:
-                idx = int(part)
-
-                if 1 <= idx <= len(chapters):
-                    result.append(chapters[idx - 1])
-
-            except Exception:
-                pass
+        result.append((vol, ch))
 
     return result
 
@@ -207,8 +186,6 @@ def run_mlib(url, dom, img_url, api_url, site_id, fmt):
 
     chapters = get_chapters_mlib(loader)
 
-    print_chapters(chapters)
-
     selected = select_chapters(chapters)
 
     filter_mlib(loader, selected)
@@ -231,8 +208,6 @@ def run_group(url, dom, fmt):
 
     chapters = get_chapters_group(loader)
 
-    print_chapters(chapters)
-
     selected = select_chapters(chapters)
 
     filter_group(loader, selected)
@@ -253,10 +228,6 @@ def run():
     url = ask_url()
 
     dom = get_domain(url)
-
-    if not dom:
-        print("Неверная ссылка")
-        return
 
     fmt = ask_format()
 
@@ -285,10 +256,6 @@ def run():
     elif dom in GROUP_L:
 
         run_group(url, dom, fmt)
-
-    else:
-
-        print("\nСайт не поддерживается")
 
 # -------------------------------------------------
 # Entry Point

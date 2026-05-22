@@ -7,7 +7,7 @@ from tqdm import tqdm
 import httplib2
 import requests
 from bs4 import BeautifulSoup
-from utils import authorization, convert_to_pdf, check_status, sanitize_filename
+from utils import authorization, convert_output_file, check_status, sanitize_filename
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from exceptions import ChapterFetchError, DownloadError, MangaNotFoundError
@@ -63,7 +63,7 @@ class MangaDownGroup:
         self.create_path()
         self.driver = self.init_driver()
         self.download()
-        convert_to_pdf(self.cwd, self.manga_name, self.sel)
+        convert_output_file(self.cwd, self.manga_name, self.sel)
 
     def get_manga_data(self):
         """Получает данные о манге (название)."""
@@ -131,17 +131,39 @@ class MangaDownGroup:
             chapter_path = os.path.join(self.cwd, self.manga_name, vol, ch)
             full_url = self.url.rsplit('/', 1)[0] + link
 
-            soup = BeautifulSoup(self.selen(full_url), 'html.parser')
+            max_attempts = 4
+            script_tag = None
 
-            script_tag = soup.find("script", string=lambda x: x and "rm_h.readerInit" in x)
+            for attempt in range(1, max_attempts + 1):
+                try:
+                    soup = BeautifulSoup(self.selen(full_url), 'html.parser')
 
+                    script_tag = soup.find(
+                        "script",
+                        string=lambda x: x and "rm_h.readerInit" in x
+                    )
+
+                    if script_tag:
+                        break
+
+                    print(f"Не удалось получить страницы главы "
+                          f"(попытка {attempt}/{max_attempts})")
+
+                    time.sleep(2.5)
+
+                except Exception as e:
+                    raise DownloadError (f"Ошибка при получении главы: {e}") from e
+
+            # если после всех попыток script_tag так и не найден
             if not script_tag:
-                raise DownloadError(f"Не удалось получить страницы главы для сайта")
+                print(f"Пропуск том {vol} глава {ch}")
+                continue
 
             matches = re.findall(
                 r"\['(https?://[^']+/)','',\"([^\"]+)\"",
                 script_tag.string
             )
+
             cleaned_urls = [domain + path for domain, path in matches]
 
             for i, src in enumerate(tqdm(cleaned_urls, desc=f'Скачивание том {vol} глава {ch}'), start=1):

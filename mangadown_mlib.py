@@ -5,7 +5,7 @@ import time
 import random
 from tqdm import tqdm
 import httplib2
-from utils import convert_to_pdf, sanitize_filename
+from utils import convert_output_file, sanitize_filename
 from exceptions import ChapterFetchError, MangaNotFoundError
 
 class MangaDown_MLib:
@@ -41,7 +41,7 @@ class MangaDown_MLib:
     def start(self):
         self.create_path()
         self.download()
-        convert_to_pdf(self.my_cwd, self.manga_name, self.sel)
+        convert_output_file(self.my_cwd, self.manga_name, self.sel)
 
     def get_tok(self):
         """Запрашивает токен авторизации."""
