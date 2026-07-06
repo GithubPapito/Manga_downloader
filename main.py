@@ -17,7 +17,7 @@ custom_style = Style([
 # Поддерживаемые домены
 M_LIB = ["mangalib.me", "mangalib.org"]
 H_LIB = ["hentailib.me"]
-IMG_URLS = ["img3.mixlib.me", "img3h.hentaicdn.org"]
+IMG_URLS = ["img3.cdnlibs.org", "img3h.hentaicdn.org"]
 GROUP_L = ["web.usagi.one", "1.seimanga.me", "a.zazaza.me"]
 
 # -------------------------------------------------

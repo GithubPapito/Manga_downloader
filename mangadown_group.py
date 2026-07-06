@@ -22,12 +22,13 @@ class MangaDownGroup:
             "cache-control": "no-cache",
             "connection": "keep-alive",
             "host": dom,
-            "referer": f"https://{dom}/",
+            "referer": f"{url}&mtr=true",
+            "sec-ch-ua": "\"Google Chrome\";v=\"146\", \"Not:A-Brand\";v=\"24\", \"Chromium\";v=\"146\"",
             "sec-fetch-mode": "no-cors",
             "sec-fetch-site": "same-site",
             "User-Agent": (
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-                "(KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36"
+                "(KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36"
             )
         }
 
@@ -36,7 +37,7 @@ class MangaDownGroup:
             "accept-language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
             "cache-control": "no-cache",
             "pragma": "no-cache",
-            "sec-ch-ua": "\"Google Chrome\";v=\"123\", \"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"123\"",
+            "sec-ch-ua": "\"Google Chrome\";v=\"146\", \"Not:A-Brand\";v=\"24\", \"Chromium\";v=\"146\"",
             "sec-ch-ua-mobile": "?0",
             "sec-ch-ua-platform": "\"Windows\"",
             "sec-fetch-dest": "document",
@@ -45,7 +46,7 @@ class MangaDownGroup:
             "upgrade-insecure-requests": "1",
             "User-Agent": (
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-                "(KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
+                "(KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36"
             )
         }
 
@@ -137,6 +138,10 @@ class MangaDownGroup:
             for attempt in range(1, max_attempts + 1):
                 try:
                     soup = BeautifulSoup(self.selen(full_url), 'html.parser')
+
+                    # with open("page.txt", "w", encoding="utf-8") as f:
+                    #     f.write(str(soup))
+                    # exit(0)
 
                     script_tag = soup.find(
                         "script",
