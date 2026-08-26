@@ -21,13 +21,7 @@
 Создадутся папки для глав и начнётся скачивание.<br>
 После скачивания все изображения собираются в pdf файлы или cbz архивы по томам.<br><br>
 
-Для скачивания понадобятся файлы куки. Их можно получить, используя программу: [https://github.com/GithubPapito/Manga_downloader/releases/tag/authorization](https://github.com/GithubPapito/Manga_downloader/releases/tag/authorization_v2).<br>
-При её запуске введите адрес манги, которую хотите скачать, авторизуйтесь на сайте (на это есть 30 секунд), ждите, пока браузер сам закроется.<br>
-В директории появится файл cookies, его необходимо разместить в одной папке с основной программой.<br>
-Или использовать расширение: https://chromewebstore.google.com/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc<br>
-Сохраняем файл в JSON и переименовываем в cookies.<br>
-<img width="503" height="393" alt="2025-11-06_10-03-54" src="https://github.com/user-attachments/assets/dbfe1928-a07c-4d81-aea7-e4e916b23b77" /><br>
-
+При скачивании манги, для которой нужна авторизация на сайте, программа сама её запросит, просто следуйте инструкции.<br>
 
 По ошибкам пишите в дискуссии, прикрепляйте ссылку манги, которую пытаетесь скачать.
 
